@@ -2,11 +2,13 @@
 
 set -e
 
+FORCE=false
 IMAGE=""
 SIZE=4GB
 
 while [ "$1" != "" ]; do
   case "$1" in
+    --force)  FORCE=true; shift ;;
     --size)   SIZE="$2"; shift; shift ;;
     --ubuntu) UBUNTU="$2"; shift; shift ;;
     --debian) DEBIAN="$2"; shift; shift ;;
@@ -19,6 +21,7 @@ done
 if [ "$IMAGE" == "" ]; then
   echo "Usage: nspawn-bootstrap <container.img> [options]"
   echo
+  echo "  --force"
   echo "  --size    <image-size>"
   echo "  --ubuntu  <version>"
   echo "  --debian  <version>"
@@ -46,7 +49,7 @@ required () {
 [ "$UBUNTU" != "" ] && required debootstrap
 [ "$DEBIAN" != "" ] && required debootstrap
 
-if [ -f "$IMAGE" ]; then
+if [ -f "$IMAGE" ] && ! $FORCE; then
   echo $IMAGE already exists
   exit 1
 fi
