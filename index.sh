@@ -49,7 +49,11 @@ required () {
 [ "$UBUNTU" != "" ] && required debootstrap
 [ "$DEBIAN" != "" ] && required debootstrap
 
-if [ -f "$IMAGE" ] && ! $FORCE; then
+if $FORCE; then
+  rm -f "$IMAGE"
+fi
+
+if [ -f "$IMAGE" ]; then
   echo $IMAGE already exists
   exit 1
 fi
