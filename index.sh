@@ -78,6 +78,7 @@ build () {
   rmdir "$MNT"
   sudo losetup -d "$DEV"
   [ "$ERR" != "" ] && rm -f "$IMAGE" && exit $ERR
+  true
 }
 
 if [ "$ARCH" != "" ]; then
