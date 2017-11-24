@@ -78,8 +78,6 @@ build () {
   rmdir "$MNT"
   sudo losetup -d "$DEV"
   [ "$ERR" != "" ] && rm -f "$IMAGE" && exit $ERR
-  echo Done. To boot container run:
-  echo sudo systemd-nspawn -b -i "$IMAGE"
 }
 
 if [ "$ARCH" != "" ]; then
