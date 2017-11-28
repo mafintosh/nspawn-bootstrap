@@ -4,7 +4,7 @@ set -e
 
 FORCE=false
 IMAGE=""
-SIZE=4GB
+SIZE=${NSPAWN_BOOTSTRAP_IMAGE_SIZE:-4GB}
 
 while [ "$1" != "" ]; do
   case "$1" in
