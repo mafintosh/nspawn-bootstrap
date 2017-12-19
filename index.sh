@@ -86,7 +86,7 @@ if [ "$ARCH" != "" ]; then
   build sudo pacstrap "$MNT" base
 elif [ "$UBUNTU" != "" ]; then
   echo Installing Ubuntu ...
-  build sudo debootstrap --arch=amd64 "$UBUNTU" "$MNT" http://archive.ubuntu.com/ubuntu/
+  build sudo debootstrap "$UBUNTU" "$MNT" http://archive.ubuntu.com/ubuntu/
 elif [ "$DEBIAN" != "" ]; then
   echo Installing Debian ...
   build sudo debootstrap "$DEBIAN" "$MNT" http://deb.debian.org/debian/
