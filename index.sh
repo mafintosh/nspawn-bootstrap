@@ -3,18 +3,23 @@
 set -e
 
 FORCE=false
+NO_PARTS=false
+NO_CREATE=false
 IMAGE=""
 SIZE=${NSPAWN_BOOTSTRAP_IMAGE_SIZE:-4GB}
 
 while [ "$1" != "" ]; do
   case "$1" in
-    --force)  FORCE=true; shift ;;
-    --size)   SIZE="$2"; shift; shift ;;
-    --ubuntu) UBUNTU="$2"; shift; shift ;;
-    --debian) DEBIAN="$2"; shift; shift ;;
-    --arch)   ARCH=true; shift; ;;
-    --help)   shift; ;;
-    *)        IMAGE="$1"; shift; ;;
+    --force)         FORCE=true; shift ;;
+    --size)          SIZE="$2"; shift; shift ;;
+    --ubuntu)        UBUNTU="$2"; shift; shift ;;
+    --debian)        DEBIAN="$2"; shift; shift ;;
+    --arch)          ARCH=true; shift; ;;
+    --help)          shift; ;;
+    --no-partitions) NO_PARTS=true; shift ;;
+    --mount)         MNT="$2"; shift; shift ;;
+    --no-create)     NO_CREATE=true; shift ;;
+    *)               IMAGE="$1"; shift; ;;
   esac
 done
 
@@ -49,24 +54,36 @@ required () {
 [ "$UBUNTU" != "" ] && required debootstrap
 [ "$DEBIAN" != "" ] && required debootstrap
 
-if $FORCE; then
-  rm -f "$IMAGE"
+if ! $NO_CREATE; then
+  if $FORCE; then
+    rm -f "$IMAGE"
+  fi
+
+  if [ -f "$IMAGE" ]; then
+    echo $IMAGE already exists
+    exit 1
+  fi
+
+  echo Allocating image ...
+  fallocate -l "$SIZE" "$IMAGE"
 fi
 
-if [ -f "$IMAGE" ]; then
-  echo $IMAGE already exists
-  exit 1
+if ! $NO_PARTS; then
+  echo Writing partition table ...
+  printf 'n\n\n\n2048\n\na\nw\n' | fdisk "$IMAGE" -u >/dev/null
 fi
-
-echo Allocating image ...
-fallocate -l "$SIZE" "$IMAGE"
-
-echo Writing partition table ...
-printf 'n\n\n\n2048\n\na\nw\n' | fdisk "$IMAGE" -u >/dev/null
 
 echo Formatting to ext4 ...
-DEV=$(sudo losetup -f --show "$IMAGE" --offset=$((2048 * 512)))
-MNT="$IMAGE.mnt"
+
+if $NO_PARTS; then
+  DEV="$IMAGE"
+else
+  DEV=$(sudo losetup -f --show "$IMAGE" --offset=$((2048 * 512)))
+fi
+
+if [ "$MNT" == "" ]; then
+  MNT="$IMAGE.mnt"
+fi
 
 sudo mkfs.ext4 "$DEV" -q >/dev/null
 
@@ -76,7 +93,7 @@ build () {
   "$@" || ERR=$?
   sudo umount "$MNT"
   rmdir "$MNT"
-  sudo losetup -d "$DEV"
+  ! $NO_PART && sudo losetup -d "$DEV"
   [ "$ERR" != "" ] && rm -f "$IMAGE" && exit $ERR
   true
 }
