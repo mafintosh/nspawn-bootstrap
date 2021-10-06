@@ -14,7 +14,7 @@ while [ "$1" != "" ]; do
     --size)          SIZE="$2"; shift; shift ;;
     --ubuntu)        UBUNTU="$2"; shift; shift ;;
     --debian)        DEBIAN="$2"; shift; shift ;;
-    --alpine)        ALPINE="$2"; shift; shift ;;
+    --alpine)        ALPINE=true; shift; ;;
     --arch)          ARCH=true; shift; ;;
     --help)          shift; ;;
     --no-partitions) NO_PARTS=true; shift ;;
