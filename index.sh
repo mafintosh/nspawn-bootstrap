@@ -54,7 +54,6 @@ required () {
 [ "$ARCH" != "" ] && required pacstrap
 [ "$UBUNTU" != "" ] && required debootstrap
 [ "$DEBIAN" != "" ] && required debootstrap
-[ "$ALPINE" != "" ] && required alpine-chroot-install
 
 if ! $NO_CREATE; then
   if $FORCE; then
@@ -111,7 +110,14 @@ elif [ "$DEBIAN" != "" ]; then
   build sudo debootstrap "$DEBIAN" "$MNT" http://deb.debian.org/debian/
 elif [ "$ALPINE" != "" ]; then
   echo Installing Alpine ...
-  build sudo alpine-chroot-install -d "$MNT" -p build-base
+  rm -rf /tmp/nspawn-bootstrap-alpine
+  mkdir -p /tmp/nspawn-bootstrap-alpine
+  wget https://dl-cdn.alpinelinux.org/alpine/v3.14/main/$(uname --processor)/apk-tools-static-2.12.7-r0.apk -O /tmp/nspawn-bootstrap-alpine/tar
+  cd /tmp/nspawn-bootstrap-alpine
+  tar zxf tar
+  cd -
+  build sudo /tmp/nspawn-bootstrap-alpine/sbin/apk.static --arch $(uname --processor) -X http://dl-cdn.alpinelinux.org/alpine/latest-stable/main/ -U --allow-untrusted --root "$MNT" --initdb add alpine-base
+  rm -rf /tmp/nspawn-bootstrap-alpine
 else
   sudo losetup -d "$DEV"
   echo Done. Mount the first partition and install your OS.
