@@ -14,6 +14,7 @@ while [ "$1" != "" ]; do
     --size)          SIZE="$2"; shift; shift ;;
     --ubuntu)        UBUNTU="$2"; shift; shift ;;
     --debian)        DEBIAN="$2"; shift; shift ;;
+    --alpine)        ALPINE="$2"; shift; shift ;;
     --arch)          ARCH=true; shift; ;;
     --help)          shift; ;;
     --no-partitions) NO_PARTS=true; shift ;;
@@ -53,6 +54,7 @@ required () {
 [ "$ARCH" != "" ] && required pacstrap
 [ "$UBUNTU" != "" ] && required debootstrap
 [ "$DEBIAN" != "" ] && required debootstrap
+[ "$ALPINE" != "" ] && required alpine-chroot-install
 
 if ! $NO_CREATE; then
   if $FORCE; then
@@ -107,6 +109,9 @@ elif [ "$UBUNTU" != "" ]; then
 elif [ "$DEBIAN" != "" ]; then
   echo Installing Debian ...
   build sudo debootstrap "$DEBIAN" "$MNT" http://deb.debian.org/debian/
+elif [ "$ALPINE" != "" ]; then
+  echo Installing Alpine ...
+  build sudo alpine-chroot-install -d "$MNT" -p build-base
 else
   sudo losetup -d "$DEV"
   echo Done. Mount the first partition and install your OS.
