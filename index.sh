@@ -104,7 +104,11 @@ if [ "$ARCH" != "" ]; then
   build sudo pacstrap "$MNT" base
 elif [ "$UBUNTU" != "" ]; then
   echo Installing Ubuntu ...
-  build sudo debootstrap "$UBUNTU" "$MNT" http://archive.ubuntu.com/ubuntu/
+  if [ "$(uname -m)" == "aarch64" ]; then
+    build sudo debootstrap "$UBUNTU" "$MNT" http://ports.ubuntu.com/
+  else
+    build sudo debootstrap "$UBUNTU" "$MNT" http://archive.ubuntu.com/ubuntu/
+  fi
 elif [ "$DEBIAN" != "" ]; then
   echo Installing Debian ...
   build sudo debootstrap "$DEBIAN" "$MNT" http://deb.debian.org/debian/
