@@ -1,6 +1,6 @@
 {
   "name": "nspawn-bootstrap",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "description": "Bootstrap a systemd-nspawn container with either an Arch, Ubuntu, or Debian distro",
   "dependencies": {},
   "devDependencies": {},
